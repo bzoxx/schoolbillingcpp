@@ -447,40 +447,13 @@ void searchStudent(sqlite3* db) {
 // Function to search for transactions
 void searchTransactions(sqlite3* db) {
     string searchCriteria, searchValue;
-    int choice;
-    cout << "Enter the search criteria "<<endl;
-    cout << "1. FNAME"<<endl;
-    cout << "2. LNAME"<<endl;
-    cout << "3. GRADE"<<endl;
-    cout << "4. AGE"<<endl;
-    cout << "5. SEX"<<endl;
-    cout << "6. EXIT"<<endl;
-    cin>> choice;
-    switch(choice)
-    {
-        case 1:
-        searchCriteria= "FNAME";
-        break;
-        case 2:
-        searchCriteria= "LNAME";
-        break;
-        case 3:
-        searchCriteria= "GRADE";
-        break;
-        case 4:
-        searchCriteria= "AGE";
-        break;
-        case 5:
-        searchCriteria= "SEX";
-        break;
-        case 6:
-            system("cls");
-            mainmenu(db);
-    }
+    cout << "Enter the search criteria (USER_ID, AMOUNT, REASON, STATUS, DATE): ";
+    cin >> searchCriteria;
+    cout << "Enter the search value: ";
     cin.ignore();
     getline(cin, searchValue);
 
-    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + " LIKE '%" + searchValue + "%';";
+    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + "=" + searchValue + ";";
     sqlite3_stmt* stmt;
     int exit = sqlite3_prepare_v2(db, searchSQL.c_str(), -1, &stmt, NULL);
     if (exit != SQLITE_OK) {
@@ -928,7 +901,7 @@ string pass;
 cin>>pass;
 
 string password = returnit(db,"Semester_Info","NO","1","PASSWORD");
-cout<<password;
+//cout<<password;
 if(pass!=password){
     cout<<"Wrong Password "<<endl;
     mainmenu(db);
