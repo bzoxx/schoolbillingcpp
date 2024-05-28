@@ -7,7 +7,7 @@
 #include <random>
 #include <cstdlib>
 #include "utilities.h"
-#include <cstdio> //to delte the db on reset
+//#include <cstdio> //to delte the db on reset
 using namespace std;
 
 //getTerminalWidth();//for finding the center
