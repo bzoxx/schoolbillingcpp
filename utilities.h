@@ -27,6 +27,7 @@ void enableVirtualTerminalProcessing();
 int getTerminalWidth();
 void printCentered(const string& text);
 void printColoredCenteredBlock(const string& colorCode, const vector<string>& lines);
+void welcome_message();
 
 
 #endif // UTILITIES_H_INCLUDED
