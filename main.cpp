@@ -7,12 +7,16 @@
 #include <ctime>
 #include <random>
 #include <cstdlib>
+#include <cstdio>
+#include <cstring>
 //#include "utilities.h"
 //#include <cstdio> //to delte the db on reset
 using namespace std;
 
 //getTerminalWidth();//for finding the center
 //void printCentered(const string& text);
+
+char* filename;
 
 void mainmenu(sqlite3* db);
 
@@ -129,13 +133,12 @@ void registerStudent(sqlite3* db) {
     char* zErrMsg=0;
 
     mt19937 gen(time(0));
-
     uniform_int_distribution<> digitDistrib(1, 9);
     int numDigit = digitDistrib(gen); // random ID generator
     uniform_int_distribution<> distrib(0, pow(10, numDigit) - 1);
     int id = distrib(gen);
 
-    cout << endl << id << endl;
+    cout << endl <<"ID: "<< id << endl;
 
     std::cout << "Enter first name: ";
     std::cin >> fname;
@@ -186,14 +189,13 @@ void registerStudent(sqlite3* db) {
     // Execute the query and process the results
     while (sqlite3_step(stmt) == SQLITE_ROW) {
 
-       // double amount = sqlite3_column_double(stmt, 2);
-       // cout<<amount<<endl;
         no++;
 
     }
 string sgrade = to_string(grade);
-     string amount = returnit(db, "Semester_Info", "GRADE", sgrade, "AMOUNT");
+string amount = returnit(db, "Semester_Info", "GRADE", sgrade, "AMOUNT");
 string regfee = returnit(db, "Semester_Info", "GRADE", sgrade, "REG_FEE");
+
 //cout << "in for loop"<<endl;
 
 
@@ -210,7 +212,7 @@ string regfee = returnit(db, "Semester_Info", "GRADE", sgrade, "REG_FEE");
     }
 
     for (int i=2; i!=no; ++i){
-            term = "Term" + to_string(i);
+            term = "term" + to_string(i);
     cout << endl << term << endl;
         sql = "INSERT INTO Transactions(USER_ID,REASON,AMOUNT,STATUS)"
               "VALUES ("+ to_string(id) + ", '" + term  + "'," + amount +","+to_string(status)+ ");";
@@ -288,11 +290,11 @@ void payment(sqlite3* db) {
         return;
     }
 
-    cout << "Above while loop\n";
+    //cout << "Above while loop\n";
     bool found = false; // To check if any rows are found
     while ((chk = sqlite3_step(stmt)) == SQLITE_ROW) {
         found = true;
-        cout << "In while loop\n";
+        //cout << "In while loop\n";
         int transaction_id = sqlite3_column_int(stmt, 0);
         double amount = sqlite3_column_double(stmt, 1);
         const unsigned char* reason = sqlite3_column_text(stmt, 2);
@@ -514,7 +516,7 @@ void displayStudentData(sqlite3* db) {
 void updateStudent(sqlite3* db, int user_id) {
     string fname, lname, gender, address, age, contact;
     string gradeInput;
-    int grade = -1; // -1 to indicate no change
+ // -1 to indicate no change
 
     cout << "Enter new first name (leave blank to keep unchanged): ";
     cin.ignore();
@@ -525,11 +527,6 @@ void updateStudent(sqlite3* db, int user_id) {
     getline(cin, age);
     cout << "Enter new gender (leave blank to keep unchanged): ";
     getline(cin, gender);
-    cout << "Enter new grade (leave blank to keep unchanged): ";
-    getline(cin, gradeInput);
-    if (!gradeInput.empty()) {
-        grade = stoi(gradeInput);
-    }
     cout << "Enter new address (leave blank to keep unchanged): ";
     getline(cin, address);
     cout << "Enter new contact (leave blank to keep unchanged): ";
@@ -558,11 +555,7 @@ void updateStudent(sqlite3* db, int user_id) {
         updateSQL << "SEX = '" << gender << "'";
         needsComma = true;
     }
-    if (grade != -1) {
-        if (needsComma) updateSQL << ", ";
-        updateSQL << "GRADE = " << grade;
-        needsComma = true;
-    }
+
     if (!address.empty()) {
         if (needsComma) updateSQL << ", ";
         updateSQL << "ADDRESS = '" << address << "'";
@@ -689,9 +682,12 @@ void insertIntoSemesterInfo(sqlite3* db) {
     getline(cin, schoolName);
     cout << "Enter the password: ";
     cin >> password;
+
+
        string idate[no];
        string edate[no];
        string pdate[no];
+
        for(int i = 0; i!=no; i++){
 
             //cin>>semsfee[i];
@@ -846,6 +842,16 @@ sqlite3_close(db);
 }
 
 
+
+int deleteDatabase() {
+    if (remove(filename) == 0) {
+        cout << "Deleted the database file: " << filename << std::endl;
+        return 0;
+    } else {
+        std::cerr << "Error deleting the database file: " << std::strerror(errno) << std::endl;
+        return 1;
+    }
+}
 void reseter(sqlite3* db){
 
 cout<<"ENTER THE PASSOWRD :";
@@ -857,16 +863,24 @@ string password = returnit(db,"Semester_Info","NO","1","PASSWORD");
 if(pass!=password){
     cout<<"Wrong Password "<<endl;
     mainmenu(db);
-}else{
+    return;
+}
     a:
     cout<<"ARE YOU SURE YOU WANT TO RESET EVERYTHING HERE?!!!(Y/N)"<<endl;
     char sure;
     cin>>sure;
     if(sure=='Y' || sure=='y'){
-dropTbl(db);
-    createTableIfNotExists(db);
-    checkAndInsertSemesterInfo(db);
+//dropTbl(db);
+sqlite3_close(db);
 
+deleteDatabase();
+sqlite3* DB;
+
+
+    int exit = sqlite3_open("school_billing.db", &DB);
+    createTableIfNotExists(DB);
+    checkAndInsertSemesterInfo(DB);
+mainmenu(DB);
     }else if(sure=='n' || sure=='N'){
 mainmenu(db);
     }else{
@@ -874,9 +888,9 @@ mainmenu(db);
     }
 
 
-mainmenu(db);
 
-}
+
+//}
 
 
 
@@ -979,6 +993,9 @@ int main() {
 
     int exit = sqlite3_open("school_billing.db", &DB);
 
+    filename = "school_billing.db";
+
+
     if (exit) {
         cerr << "Error opening DB: " << sqlite3_errmsg(DB) << endl;
         return exit;
@@ -995,4 +1012,7 @@ int main() {
     sqlite3_close(DB);
 
     return 0;
+
+
+
 }
