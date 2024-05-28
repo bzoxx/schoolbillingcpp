@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <sqlite3.h>
 #include <string>
@@ -6,7 +7,7 @@
 #include <ctime>
 #include <random>
 #include <cstdlib>
-#include "utilities.h"
+//#include "utilities.h"
 //#include <cstdio> //to delte the db on reset
 using namespace std;
 
@@ -388,8 +389,9 @@ void searchStudent(sqlite3* db) {
     cout << "2. LNAME"<<endl;
     cout << "3. GRADE"<<endl;
     cout << "4. AGE"<<endl;
-    cout << "5. SEX"<<endl;
+    cout << "5. USER_ID"<<endl;
     cout << "6. EXIT"<<endl;
+    cout << "Enter choice: ";
     cin>> choice;
     switch(choice)
     {
@@ -406,7 +408,7 @@ void searchStudent(sqlite3* db) {
         searchCriteria= "AGE";
         break;
         case 5:
-        searchCriteria= "SEX";
+        searchCriteria= "USER_ID";
         break;
         case 6:
             system("cls");
@@ -414,7 +416,7 @@ void searchStudent(sqlite3* db) {
     }
 
 
-    cout << "Enter the search value: ";
+    cout << "Enter the " << searchCriteria << ": ";
     cin.ignore();
     getline(cin, searchValue);
 
@@ -426,7 +428,8 @@ void searchStudent(sqlite3* db) {
         return;
     }
 
-    cout << "ID\tFNAME\tLNAME\tAGE\tSEX\tGRADE\tCONTACT\tADDRESS\tDATETIME" << endl;
+    cout <<  left<<setw(10) <<"ID"<< left<<setw(15) <<"FNAME"<< left<<setw(15) <<"LNAME"<< left<<setw(15)
+    <<"AGE"<< left<<setw(15) <<"SEX"<< left<<setw(15) <<"GRADE"<< left<<setw(15) <<"CONTACT"<< left<<setw(15) <<"ADDRESS"<< left<<setw(15) <<"DATETIME" << endl;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
         const unsigned char* fname = sqlite3_column_text(stmt, 1);
@@ -438,7 +441,8 @@ void searchStudent(sqlite3* db) {
         const unsigned char* address = sqlite3_column_text(stmt, 7);
         const unsigned char* datetime = sqlite3_column_text(stmt, 8);
 
-        cout << id << "\t" << fname << "\t" << lname << "\t" << age << "\t" << sex << "\t" << grade << "\t" << contact << "\t" << address << "\t" << datetime << endl;
+        cout <<left<<setw(10)<< id << left<<setw(15) << fname << left<<setw(15) << lname << left<<setw(15) << age << left<<setw(15)
+         << sex << left<<setw(15) << grade << left<<setw(15) << contact << left<<setw(15) << address << left<<setw(15) << datetime << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -447,13 +451,30 @@ void searchStudent(sqlite3* db) {
 // Function to search for transactions
 void searchTransactions(sqlite3* db) {
     string searchCriteria, searchValue;
-    cout << "Enter the search criteria (USER_ID, AMOUNT, REASON, STATUS, DATE): ";
-    cin >> searchCriteria;
-    cout << "Enter the search value: ";
+    int choice;
+    cout << "Enter the search criteria "<<endl;
+    cout << "1. USER_ID"<<endl;
+    cout << "2. STATUS(0 - unpaid or 1 - paid)"<<endl;
+    cout << "3. EXIT"<<endl;
+    cout << "Enter choice: ";
+    cin>> choice;
+    switch(choice)
+    {
+        case 1:
+        searchCriteria= "USER_ID";
+        break;
+        case 2:
+        searchCriteria= "STATUS";
+        break;
+        case 3:
+            system("cls");
+            mainmenu(db);
+    }
+    cout << "Enter "<<searchCriteria<<": ";
     cin.ignore();
     getline(cin, searchValue);
 
-    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + "=" + searchValue + ";";
+    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + " LIKE '%" + searchValue + "%';";
     sqlite3_stmt* stmt;
     int exit = sqlite3_prepare_v2(db, searchSQL.c_str(), -1, &stmt, NULL);
     if (exit != SQLITE_OK) {
@@ -461,7 +482,9 @@ void searchTransactions(sqlite3* db) {
         return;
     }
 
-    cout << "ID\tAMOUNT\tREASON\tUSER_ID\tSTATUS\tDATETIME" << endl;
+    cout << left << setw(10) << "ID" << left << setw(15) << "AMOUNT" << left << setw(15) << "REASON"
+     << left << setw(15) << "USER_ID" << left << setw(15) << "STATUS" << left << setw(15) << "DATETIME" << endl;
+
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
         double amount = sqlite3_column_double(stmt, 1);
@@ -470,7 +493,7 @@ void searchTransactions(sqlite3* db) {
         int status = sqlite3_column_int(stmt, 4);
         const unsigned char* datetime = sqlite3_column_text(stmt, 5);
 
-        cout << id << "\t" << amount << "\t" << reason << "\t" << user_id << "\t" << (status == 1 ? "Paid" : "Unpaid") << "\t" << datetime << endl;
+        cout <<left<<setw(10)<<id << left<<setw(15) << amount << left<<setw(15) << reason << left<<setw(15) << user_id << left<<setw(15) << (status == 1 ? "Paid" : "Unpaid") << left<<setw(15) << datetime << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -901,7 +924,7 @@ string pass;
 cin>>pass;
 
 string password = returnit(db,"Semester_Info","NO","1","PASSWORD");
-//cout<<password;
+cout<<password;
 if(pass!=password){
     cout<<"Wrong Password "<<endl;
     mainmenu(db);
