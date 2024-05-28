@@ -135,7 +135,7 @@ void registerStudent(sqlite3* db) {
     uniform_int_distribution<> distrib(0, pow(10, numDigit) - 1);
     int id = distrib(gen);
 
-    cout << endl << id << endl;
+    cout << endl <<"ID: "<< id << endl;
 
     std::cout << "Enter first name: ";
     std::cin >> fname;
