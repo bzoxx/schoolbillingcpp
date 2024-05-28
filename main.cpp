@@ -357,31 +357,25 @@ void payment(sqlite3* db) {
 
 
 void getTransactionsForUser(sqlite3 *db, int user_id) {
+    const char *sql = "SELECT ID, AMOUNT, REASON, STATUS, DATETIME FROM Transactions WHERE USER_ID = ?;";
     sqlite3_stmt *stmt;
-    char sql[] = "SELECT ID, AMOUNT, REASON, STATUS, DATETIME FROM Transactions WHERE USER_ID = ?;";
 
-    // Prepare the SQL statement
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
-        fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
         return;
     }
 
-    // Bind the user_id parameter
     sqlite3_bind_int(stmt, 1, user_id);
 
-    // Execute the statement and loop through the result rows
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        int id = sqlite3_column_int(stmt, 0);
-        double amount = sqlite3_column_double(stmt, 1);
-        const unsigned char *reason = sqlite3_column_text(stmt, 2);
-        int status = sqlite3_column_int(stmt, 3);
-        const unsigned char *datetime = sqlite3_column_text(stmt, 4);
-
-        printf("ID: %d, AMOUNT: %.2f, REASON: %s, STATUS: %d, DATETIME: %s\n",
-               id, amount, reason, status, datetime);
+        std::cout << "ID: " << sqlite3_column_int(stmt, 0)
+                  << ", AMOUNT: " << sqlite3_column_double(stmt, 1)
+                  << ", REASON: " << sqlite3_column_text(stmt, 2)
+                  << ", STATUS: " << sqlite3_column_int(stmt, 3)
+                  << ", DATETIME: " << sqlite3_column_text(stmt, 4)
+                  << std::endl;
     }
 
-    // Finalize the statement
     sqlite3_finalize(stmt);
 }
 
