@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <sqlite3.h>
 #include <string>
@@ -6,7 +7,7 @@
 #include <ctime>
 #include <random>
 #include <cstdlib>
-#include "utilities.h"
+//#include "utilities.h"
 //#include <cstdio> //to delte the db on reset
 using namespace std;
 
@@ -356,29 +357,6 @@ void payment(sqlite3* db) {
 }
 
 
-void getTransactionsForUser(sqlite3 *db, int user_id) {
-    const char *sql = "SELECT ID, AMOUNT, REASON, STATUS, DATETIME FROM Transactions WHERE USER_ID = ?;";
-    sqlite3_stmt *stmt;
-
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
-        return;
-    }
-
-    sqlite3_bind_int(stmt, 1, user_id);
-
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        std::cout << "ID: " << sqlite3_column_int(stmt, 0)
-                  << ", AMOUNT: " << sqlite3_column_double(stmt, 1)
-                  << ", REASON: " << sqlite3_column_text(stmt, 2)
-                  << ", STATUS: " << sqlite3_column_int(stmt, 3)
-                  << ", DATETIME: " << sqlite3_column_text(stmt, 4)
-                  << std::endl;
-    }
-
-    sqlite3_finalize(stmt);
-}
-
 // Function to search for a student by name
 void searchStudent(sqlite3* db) {
     string searchCriteria, searchValue;
@@ -388,8 +366,9 @@ void searchStudent(sqlite3* db) {
     cout << "2. LNAME"<<endl;
     cout << "3. GRADE"<<endl;
     cout << "4. AGE"<<endl;
-    cout << "5. SEX"<<endl;
+    cout << "5. USER_ID"<<endl;
     cout << "6. EXIT"<<endl;
+    cout << "Enter choice: ";
     cin>> choice;
     switch(choice)
     {
@@ -406,7 +385,7 @@ void searchStudent(sqlite3* db) {
         searchCriteria= "AGE";
         break;
         case 5:
-        searchCriteria= "SEX";
+        searchCriteria= "USER_ID";
         break;
         case 6:
             system("cls");
@@ -414,7 +393,7 @@ void searchStudent(sqlite3* db) {
     }
 
 
-    cout << "Enter the search value: ";
+    cout << "Enter the " << searchCriteria << ": ";
     cin.ignore();
     getline(cin, searchValue);
 
@@ -426,7 +405,8 @@ void searchStudent(sqlite3* db) {
         return;
     }
 
-    cout << "ID\tFNAME\tLNAME\tAGE\tSEX\tGRADE\tCONTACT\tADDRESS\tDATETIME" << endl;
+    cout <<  left<<setw(10) <<"ID"<< left<<setw(15) <<"FNAME"<< left<<setw(15) <<"LNAME"<< left<<setw(15)
+    <<"AGE"<< left<<setw(15) <<"SEX"<< left<<setw(15) <<"GRADE"<< left<<setw(15) <<"CONTACT"<< left<<setw(15) <<"ADDRESS"<< left<<setw(15) <<"DATETIME" << endl;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
         const unsigned char* fname = sqlite3_column_text(stmt, 1);
@@ -438,7 +418,8 @@ void searchStudent(sqlite3* db) {
         const unsigned char* address = sqlite3_column_text(stmt, 7);
         const unsigned char* datetime = sqlite3_column_text(stmt, 8);
 
-        cout << id << "\t" << fname << "\t" << lname << "\t" << age << "\t" << sex << "\t" << grade << "\t" << contact << "\t" << address << "\t" << datetime << endl;
+        cout <<left<<setw(10)<< id << left<<setw(15) << fname << left<<setw(15) << lname << left<<setw(15) << age << left<<setw(15)
+         << sex << left<<setw(15) << grade << left<<setw(15) << contact << left<<setw(15) << address << left<<setw(15) << datetime << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -447,13 +428,30 @@ void searchStudent(sqlite3* db) {
 // Function to search for transactions
 void searchTransactions(sqlite3* db) {
     string searchCriteria, searchValue;
-    cout << "Enter the search criteria (USER_ID, AMOUNT, REASON, STATUS, DATE): ";
-    cin >> searchCriteria;
-    cout << "Enter the search value: ";
+    int choice;
+    cout << "Enter the search criteria "<<endl;
+    cout << "1. USER_ID"<<endl;
+    cout << "2. STATUS(0 - unpaid or 1 - paid)"<<endl;
+    cout << "3. EXIT"<<endl;
+    cout << "Enter choice: ";
+    cin>> choice;
+    switch(choice)
+    {
+        case 1:
+        searchCriteria= "USER_ID";
+        break;
+        case 2:
+        searchCriteria= "STATUS";
+        break;
+        case 3:
+            system("cls");
+            mainmenu(db);
+    }
+    cout << "Enter "<<searchCriteria<<": ";
     cin.ignore();
     getline(cin, searchValue);
 
-    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + "=" + searchValue + ";";
+    string searchSQL = "SELECT ID, AMOUNT, REASON, USER_ID, STATUS, DATETIME FROM Transactions WHERE " + searchCriteria + " LIKE '%" + searchValue + "%';";
     sqlite3_stmt* stmt;
     int exit = sqlite3_prepare_v2(db, searchSQL.c_str(), -1, &stmt, NULL);
     if (exit != SQLITE_OK) {
@@ -461,7 +459,9 @@ void searchTransactions(sqlite3* db) {
         return;
     }
 
-    cout << "ID\tAMOUNT\tREASON\tUSER_ID\tSTATUS\tDATETIME" << endl;
+    cout << left << setw(10) << "ID" << left << setw(15) << "AMOUNT" << left << setw(15) << "REASON"
+     << left << setw(15) << "USER_ID" << left << setw(15) << "STATUS" << left << setw(15) << "DATETIME" << endl;
+
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
         double amount = sqlite3_column_double(stmt, 1);
@@ -470,7 +470,7 @@ void searchTransactions(sqlite3* db) {
         int status = sqlite3_column_int(stmt, 4);
         const unsigned char* datetime = sqlite3_column_text(stmt, 5);
 
-        cout << id << "\t" << amount << "\t" << reason << "\t" << user_id << "\t" << (status == 1 ? "Paid" : "Unpaid") << "\t" << datetime << endl;
+        cout <<left<<setw(10)<<id << left<<setw(15) << amount << left<<setw(15) << reason << left<<setw(15) << user_id << left<<setw(15) << (status == 1 ? "Paid" : "Unpaid") << left<<setw(15) << datetime << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -508,33 +508,9 @@ void displayStudentData(sqlite3* db) {
 }
 
 // Function to insert a transaction
-void insertTransaction(sqlite3* db, int user_id, double amount, const string& reason, int status) {
-    string insertTransactionSQL = "INSERT INTO Transactions (AMOUNT, REASON, USER_ID, STATUS) "
-                                       "VALUES (" + to_string(amount) + ", '" + reason + "', " + to_string(user_id) + ", " + to_string(status) + ");";
-
-    char* errorMessage;
-    int exit = sqlite3_exec(db, insertTransactionSQL.c_str(), NULL, 0, &errorMessage);
-    if (exit != SQLITE_OK) {
-        cerr << "Error Inserting Transaction: " << errorMessage << endl;
-        sqlite3_free(errorMessage);
-    } else {
-        cout << "Transaction inserted successfully" << endl;
-    }
-}
 
 // Function to mark a transaction as paid
-void markTransactionAsPaid(sqlite3* db, int transaction_id) {
-    string updateSQL = "UPDATE Transactions SET STATUS = 1 WHERE ID = " + to_string(transaction_id) + ";";
 
-    char* errorMessage;
-    int exit = sqlite3_exec(db, updateSQL.c_str(), NULL, 0, &errorMessage);
-    if (exit != SQLITE_OK) {
-        cerr << "Error Updating Transaction: " << errorMessage << endl;
-        sqlite3_free(errorMessage);
-    } else {
-        cout << "Transaction marked as paid successfully" << endl;
-    }
-}
 void updateStudent(sqlite3* db, int user_id) {
     string fname, lname, gender, address, age, contact;
     string gradeInput;
@@ -669,30 +645,6 @@ void userInfo(sqlite3* db, int user_id) {
     sqlite3_finalize(stmt);
 }
 // Function to add a billing item
-void addBillingItem(sqlite3* db) {
-    string itemName, description;
-    double price;
-
-    cout << "Enter item name: ";
-    cin >> itemName;
-    cout << "Enter description: ";
-    cin.ignore();
-    getline(cin, description);
-    cout << "Enter price: ";
-    cin >> price;
-
-    string insertItemSQL = "INSERT INTO Billing_Items (ITEM_NAME, DESCRIPTION, PRICE) "
-                                "VALUES ('" + itemName + "', '" + description + "', " + to_string(price) + ");";
-
-    char* errorMessage;
-    int exit = sqlite3_exec(db, insertItemSQL.c_str(), NULL, 0, &errorMessage);
-    if (exit != SQLITE_OK) {
-        cerr << "Error Adding Billing Item: " << errorMessage << endl;
-        sqlite3_free(errorMessage);
-    } else {
-        cout << "Billing Item added successfully" << endl;
-    }
-}
 
 // Function to display transactions
 void displayTransactions(sqlite3* db) {
@@ -942,14 +894,12 @@ void mainmenu(sqlite3* db) {
         <<"3. Search Student"<<endl
         <<"4. Display All Transactions"<<endl
         <<"5. Search Transactions"<<endl
-        <<"6. Insert Transaction"<<endl
-        <<"7. Mark Transaction As Paid"<<endl
-        <<"8. Update Student"<<endl
-        <<"9. Delete Student"<<endl
-        <<"10. Display User Information"<<endl
-        <<"11. Status Page"<<endl
-        <<"12. Approve Payment"<<endl
-       <<"000. RESET"<<endl
+        <<"6. Update Student"<<endl
+        <<"7. Delete Student"<<endl
+        <<"8. Display User Information"<<endl
+        <<"9. Status Page"<<endl
+        <<"10. Approve Payment"<<endl
+       <<"11. RESET"<<endl
         <<"Enter your choice: ";
 
     // Print the block with red color and centered
@@ -984,56 +934,32 @@ void mainmenu(sqlite3* db) {
                 break;
             case 6: {
                 int user_id;
-                double amount;
-                string reason;
-                int status;
-                cout << "Enter User ID: ";
-                cin >> user_id;
-                cout << "Enter Amount: ";
-                cin >> amount;
-                cout << "Enter Reason: ";
-                cin.ignore();
-                getline(cin, reason);
-                cout << "Enter Status (1 for Paid, 0 for Unpaid): ";
-                cin >> status;
-                insertTransaction(db, user_id, amount, reason, status);
-                break;
-            }
-            case 7: {
-                int transaction_id;
-                cout << "Enter Transaction ID: ";
-                cin >> transaction_id;
-                markTransactionAsPaid(db, transaction_id);
-                break;
-            }
-            case 8: {
-                int user_id;
                 cout << "Enter User ID: ";
                 cin >> user_id;
                 updateStudent(db, user_id);
                 break;
             }
-            case 9: {
+            case 7: {
                 int user_id;
                 cout << "Enter User ID: ";
                 cin >> user_id;
                 deleteStudent(db, user_id);
                 break;
             }
-            case 10: {
+            case 8: {
                 int user_id;
                 cout << "Enter User ID: ";
                 cin >> user_id;
                 userInfo(db, user_id);
                 break;
             }
-            case 11:
+            case 9:
                 statusPage(db);
                 break;
-            case 12:
+            case 10:
                 payment(db);
                 break;
-            case 13:
+            case 11:
                 reseter(db);
                // return 0;check here
             default:

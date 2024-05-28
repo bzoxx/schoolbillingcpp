@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1716856452 source:c:\users\b\desktop\school bill\school bill\main.cpp
+1716861764 source:c:\users\b\desktop\school bill\school bill\main.cpp
 	<iostream>
 	<sqlite3.h>
 	<string>
@@ -8,7 +8,6 @@
 	<ctime>
 	<random>
 	<cstdlib>
-	"utilities.h"
 
 1713188767 source:c:\users\b\desktop\school bill\school bill\sqlite3.c
 	<vxWorks.h>
