@@ -11,6 +11,57 @@
 #endif
 using namespace std;
 
+void welcome_message()
+{
+    string welcome_message= R"(
+
+
+                          _______  _        _______  _______  _______  _______   _________ _______
+                |\     /|(  ____ \( \      (  ____ \(  ___  )(       )(  ____ \  \__   __/(  ___  )
+                | )   ( || (    \/| (      | (    \/| (   ) || () () || (    \/     ) (   | (   ) |
+                | | _ | || (__    | |      | |      | |   | || || || || (__         | |   | |   | |
+                | |( )| ||  __)   | |      | |      | |   | || |(_)| ||  __)        | |   | |   | |
+                | || || || (      | |      | |      | |   | || |   | || (           | |   | |   | |
+                | () () || (____/\| (____/\| (____/\| (___) || )   ( || (____/\     | |   | (___) |
+                (_______)(_______/(_______/(_______/(_______)|/     \|(_______/     )_(   (_______)
+
+                      _________          _______
+                      \__   __/|\     /|(  ____ \
+                         ) (   | )   ( || (    \/
+                         | |   | (___) || (__
+                         | |   |  ___  ||  __)
+                         | |   | (   ) || (
+                         | |   | )   ( || (____/\
+                         )_(   |/     \|(_______/
+
+             _______  _______           _______  _______  _          ______  _________ _        _       _________ _        _______
+            (  ____ \(  ____ \|\     /|(  ___  )(  ___  )( \        (  ___ \ \__   __/( \      ( \      \__   __/( (    /|(  ____ \
+            | (    \/| (    \/| )   ( || (   ) || (   ) || (        | (   ) )   ) (   | (      | (         ) (   |  \  ( || (    \/
+            | (_____ | |      | (___) || |   | || |   | || |        | (__/ /    | |   | |      | |         | |   |   \ | || |
+            (_____  )| |      |  ___  || |   | || |   | || |        |  __ (     | |   | |      | |         | |   | (\ \) || | ____
+                  ) || |      | (   ) || |   | || |   | || |        | (  \ \    | |   | |      | |         | |   | | \   || | \_  )
+            /\____) || (____/\| )   ( || (___) || (___) || (____/\  | )___) )___) (___| (____/\| (____/\___) (___| )  \  || (___) |
+            \_______)(_______/|/     \|(_______)(_______)(_______/  |/ \___/ \_______/(_______/(_______/\_______/|/    )_)(_______)
+
+                   _______           _______ _________ _______  _______
+                  (  ____ \|\     /|(  ____ \\__   __/(  ____ \(       )
+                  | (    \/( \   / )| (    \/   ) (   | (    \/| () () |
+                  | (_____  \ (_) / | (_____    | |   | (__    | || || |
+                  (_____  )  \   /  (_____  )   | |   |  __)   | |(_)| |
+                        ) |   ) (         ) |   | |   | (      | |   | |
+                  /\____) |   | |   /\____) |   | |   | (____/\| )   ( |
+                  \_______)   \_/   \_______)   )_(   (_______/|/     \|
+
+
+
+                               )";
+
+                               cout<< welcome_message<<endl;
+
+
+
+}
+
 void enableVirtualTerminalProcessing() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) {
@@ -30,14 +81,23 @@ void enableVirtualTerminalProcessing() {
         return;
     }
 }
-void printCentered(const string& text) {
-    int width = 80; // Assume a fixed width for simplicity
-    int padding = (width - text.size()) / 2;
-    string paddingStr(padding, ' ');
-    cout << paddingStr << text << endl;
+void printCentered(const std::string& text) {
+    const int terminalWidth = 80; // Assuming terminal width of 80 characters
+    const int tabWidth = 4; // Assuming tab width of 4 characters
+
+    // Calculate the number of tab characters needed to reach the start position
+    int numTabs = terminalWidth / tabWidth;
+
+    // Output the tab characters followed by the text
+    for (int i = 0; i < numTabs+1; ++i) {
+        std::cout << '\t';
+    }
+    std::cout << text << std::endl;
 }
 
+
 void printColoredCenteredBlock(const string& colorCode, const vector<string>& lines) {
+    int width = 80; // Assume a fixed width for simplicity
     cout << colorCode;
     for (const auto& line : lines) {
         printCentered(line);
