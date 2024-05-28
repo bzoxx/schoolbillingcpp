@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <sqlite3.h>
 #include <string>
@@ -6,7 +7,7 @@
 #include <ctime>
 #include <random>
 #include <cstdlib>
-#include "utilities.h"
+//#include "utilities.h"
 //#include <cstdio> //to delte the db on reset
 using namespace std;
 
@@ -449,34 +450,24 @@ void searchTransactions(sqlite3* db) {
     string searchCriteria, searchValue;
     int choice;
     cout << "Enter the search criteria "<<endl;
-    cout << "1. FNAME"<<endl;
-    cout << "2. LNAME"<<endl;
-    cout << "3. GRADE"<<endl;
-    cout << "4. AGE"<<endl;
-    cout << "5. SEX"<<endl;
-    cout << "6. EXIT"<<endl;
+    cout << "1. USER_ID"<<endl;
+    cout << "2. STATUS(0 - unpaid or 1 - paid)"<<endl;
+    cout << "3. EXIT"<<endl;
+    cout << "Enter choice: ";
     cin>> choice;
     switch(choice)
     {
         case 1:
-        searchCriteria= "FNAME";
+        searchCriteria= "USER_ID";
         break;
         case 2:
-        searchCriteria= "LNAME";
+        searchCriteria= "STATUS";
         break;
         case 3:
-        searchCriteria= "GRADE";
-        break;
-        case 4:
-        searchCriteria= "AGE";
-        break;
-        case 5:
-        searchCriteria= "SEX";
-        break;
-        case 6:
             system("cls");
             mainmenu(db);
     }
+    cout << "Enter "<<searchCriteria<<": ";
     cin.ignore();
     getline(cin, searchValue);
 
@@ -488,7 +479,9 @@ void searchTransactions(sqlite3* db) {
         return;
     }
 
-    cout << "ID\tAMOUNT\tREASON\tUSER_ID\tSTATUS\tDATETIME" << endl;
+    cout << left << setw(10) << "ID" << left << setw(15) << "AMOUNT" << left << setw(15) << "REASON"
+     << left << setw(15) << "USER_ID" << left << setw(15) << "STATUS" << left << setw(15) << "DATETIME" << endl;
+
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
         double amount = sqlite3_column_double(stmt, 1);
@@ -497,7 +490,7 @@ void searchTransactions(sqlite3* db) {
         int status = sqlite3_column_int(stmt, 4);
         const unsigned char* datetime = sqlite3_column_text(stmt, 5);
 
-        cout << id << "\t" << amount << "\t" << reason << "\t" << user_id << "\t" << (status == 1 ? "Paid" : "Unpaid") << "\t" << datetime << endl;
+        cout <<left<<setw(10)<<id << left<<setw(15) << amount << left<<setw(15) << reason << left<<setw(15) << user_id << left<<setw(15) << (status == 1 ? "Paid" : "Unpaid") << left<<setw(15) << datetime << endl;
     }
 
     sqlite3_finalize(stmt);
