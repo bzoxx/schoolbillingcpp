@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <sqlite3.h>
 #include <string>
@@ -180,15 +179,13 @@ void registerStudent(sqlite3* db) {
         std::cerr << "Failed to prepare statement for selecting info from Semester_Info: " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
         return;
-    }
-
-    else{
+    } else{
         cout << "Successfully fetched.\n";
     }
-        int no = 1;
-    // Execute the query and process the results
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
 
+
+    int no = 1;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
         no++;
 
     }
